@@ -59,6 +59,7 @@ export default function CartPage() {
     const [postalCode, setPostalCode] = useState('');
     const [streetAddress, setStreetAddress] = useState('');
     const [country, setCountry] = useState('');
+    const [isSuccess, setIsSuccess] = useState(false);
     useEffect(() => {
         if (cartProducts.length > 0) {
             axios.post('/api/cart', { ids: cartProducts })
@@ -69,6 +70,15 @@ export default function CartPage() {
             setProducts([]);
         }
     }, [cartProducts]);
+    useEffect(() => {
+        if (typeof window === 'undefined') {
+            return;
+        }
+        if (window?.location.href.includes('success')) {
+            setIsSuccess(true);
+            //clearCart();
+        }
+    }, []);
     function moreOfThisProduct(id) {
         addProduct(id);
     }
@@ -79,29 +89,29 @@ export default function CartPage() {
         const response = await axios.post('/api/checkout', {
             name, email, city, postalCode, streetAddress, country,
             cartProducts,
-        })
+        });
         if (response.data.url) {
             window.location = response.data.url;
         }
     }
     let total = 0;
-    for (const productID of cartProducts) {
-        const price = products.find(p => p._id === productID)?.price || 0;
+    for (const productId of cartProducts) {
+        const price = products.find(p => p._id === productId)?.price || 0;
         total += price;
     }
-    if (window.location.href.includes('success')) {
+
+    if (isSuccess) {
         return (
             <>
-                <Header>
-                    <Center>
-                        <ColumnsWrapper>
-                            <Box>
-                                <h1>Thanks for your order!</h1>
-                                <p>We will email you when your order will be sent.</p>
-                            </Box>
-                        </ColumnsWrapper>
-                    </Center>
-                </Header>
+                <Header />
+                <Center>
+                    <ColumnsWrapper>
+                        <Box>
+                            <h1>Thanks for your order!</h1>
+                            <p>We will email you when your order will be sent.</p>
+                        </Box>
+                    </ColumnsWrapper>
+                </Center>
             </>
         );
     }

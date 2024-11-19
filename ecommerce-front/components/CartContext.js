@@ -26,13 +26,16 @@ export function CartContextProvider({ children }) {
                 return prev.filter((value, index) => index !== pos);
             }
             return prev;
-        })
+        });
     }
+
     function clearCart() {
         setCardProducts([]);
     }
     return (
         <CartContext.Provider value={{ cartProducts, setCardProducts, addProduct, removeProduct, clearCart }}>
+
+
             {children}
         </CartContext.Provider>
     );

@@ -8,6 +8,7 @@ const LoginWrapper = styled.div`
   align-items: center;
   min-height: 100vh;
   background-color: #f5f5f5;
+  padding: 0 20px;
 `;
 
 const LoginBox = styled.div`
@@ -16,6 +17,16 @@ const LoginBox = styled.div`
   padding: 30px;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: 768px) {
+    width: 90%;
+    padding: 20px;
+  }
+
+  @media (max-width: 480px) {
+    width: 95%;
+    padding: 15px;
+  }
 `;
 
 const Title = styled.h2`
@@ -23,6 +34,10 @@ const Title = styled.h2`
   margin-bottom: 20px;
   font-size: 24px;
   font-weight: bold;
+
+  @media (max-width: 480px) {
+    font-size: 20px;
+  }
 `;
 
 const Input = styled.input`
@@ -31,6 +46,10 @@ const Input = styled.input`
   margin-bottom: 15px;
   border: 1px solid #ddd;
   border-radius: 5px;
+
+  @media (max-width: 480px) {
+    padding: 8px;
+  }
 `;
 
 const Button = styled.button`
@@ -46,6 +65,11 @@ const Button = styled.button`
   &:hover {
     background-color: #444;
   }
+
+  @media (max-width: 480px) {
+    padding: 8px;
+    font-size: 14px;
+  }
 `;
 
 const Link = styled.a`
@@ -58,6 +82,10 @@ const Link = styled.a`
 
   &:hover {
     text-decoration: underline;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 14px;
   }
 `;
 

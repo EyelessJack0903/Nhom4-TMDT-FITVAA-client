@@ -1,42 +1,60 @@
-const { createContext, Children, useState, useEffect } = require("react");
+import { createContext, useState, useEffect } from "react";
 
 export const CartContext = createContext({});
 
 export function CartContextProvider({ children }) {
-    const ls = typeof window !== "undefined" ? window.localStorage : null;
-    const [cartProducts, setCardProducts] = useState([]);
-    useEffect(() => {
-        if (cartProducts?.length > 0) {
-            ls?.setItem('cart', JSON.stringify(cartProducts));
+  const ls = typeof window !== "undefined" ? window.localStorage : null;
+  const [cartProducts, setCartProducts] = useState([]);
 
-        }
-    }, [cartProducts]);
-    useEffect(() => {
-        if (ls && ls.getItem('cart')) {
-            setCardProducts(JSON.parse(ls.getItem('cart')));
-        }
-    }, []);
-    function addProduct(productID) {
-        setCardProducts(prev => [...prev, productID]);
+  // Lưu giỏ hàng vào LocalStorage khi thay đổi
+  useEffect(() => {
+    if (cartProducts?.length > 0) {
+      ls?.setItem("cart", JSON.stringify(cartProducts));
+    } else {
+      ls?.removeItem("cart"); // Xóa giỏ hàng khỏi LocalStorage nếu rỗng
     }
-    function removeProduct(productID) {
-        setCardProducts(prev => {
-            const pos = prev.indexOf(productID);
-            if (pos !== -1) {
-                return prev.filter((value, index) => index !== pos);
-            }
-            return prev;
-        });
+  }, [cartProducts]);
+
+  // Tải giỏ hàng từ LocalStorage khi khởi động
+  useEffect(() => {
+    if (ls && ls.getItem("cart")) {
+      setCartProducts(JSON.parse(ls.getItem("cart")));
     }
+  }, []);
 
-    function clearCart() {
-        setCardProducts([]);
-    }
-    return (
-        <CartContext.Provider value={{ cartProducts, setCardProducts, addProduct, removeProduct, clearCart }}>
+  // Thêm sản phẩm vào giỏ hàng
+  function addProduct(productID) {
+    setCartProducts((prev) => [...prev, productID]);
+  }
 
+  // Xóa một sản phẩm khỏi giỏ hàng
+  function removeProduct(productID) {
+    setCartProducts((prev) => {
+      const pos = prev.indexOf(productID);
+      if (pos !== -1) {
+        return prev.filter((_, index) => index !== pos);
+      }
+      return prev;
+    });
+  }
 
-            {children}
-        </CartContext.Provider>
-    );
+  function clearCart() {
+    setCartProducts([]); 
+    ls?.removeItem("cart");
+    console.log("Cart cleared"); 
+  }
+  
+
+  return (
+    <CartContext.Provider
+      value={{
+        cartProducts,
+        addProduct,
+        removeProduct,
+        clearCart,
+      }}
+    >
+      {children}
+    </CartContext.Provider>
+  );
 }

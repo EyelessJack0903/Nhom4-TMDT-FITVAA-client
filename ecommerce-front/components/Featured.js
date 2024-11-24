@@ -3,7 +3,7 @@ import styled from "styled-components";
 import Button from "./Button";
 import ButtonLink from "./ButtonLink";
 import CartIcon from "./icons/CartIcon";
-import { useCallback, useContext } from "react";
+import { useContext } from "react";
 import { CartContext } from "./CartContext";
 
 const Bg = styled.div`
@@ -15,7 +15,10 @@ const Bg = styled.div`
 const Title = styled.h1`
   margin: 0;
   font-weight: normal;
-  font-size: 3rem;
+  font-size: 1.5rem;
+  @media screen and (min-width: 768px) {
+    font-size: 3rem;
+  }
 `;
 
 const Desc = styled.p`
@@ -25,11 +28,30 @@ const Desc = styled.p`
 
 const ColumnsWrapper = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 40px;
-  
+
   img {
     max-width: 100%;
+    max-height: 200px;
+    display: block;
+    margin: 0 auto;
+  }
+
+  div:nth-child(1) {
+    order: 2;
+  }
+
+  @media screen and (min-width: 768px) {
+    grid-template-columns: 1.1fr 0.9fr;
+
+    div:nth-child(1) {
+      order: 0;
+    }
+
+    img {
+      max-width: 100%;
+    }
   }
 `;
 
@@ -46,9 +68,11 @@ const ButtonsWrapper = styled.div`
 
 export default function Featured({ product }) {
   const { addProduct } = useContext(CartContext);
+
   function addFeaturedToCart() {
     addProduct(product._id);
   }
+
   return (
     <Bg>
       <Center>
@@ -59,7 +83,13 @@ export default function Featured({ product }) {
               <Desc>{product.description}</Desc>
 
               <ButtonsWrapper>
-                <ButtonLink href={'/product/' + product._id} outline={1} white={1}>Read more</ButtonLink>
+                <ButtonLink
+                  href={"/product/" + product._id}
+                  outline={1}
+                  white={1}
+                >
+                  Read more
+                </ButtonLink>
                 <Button white onClick={addFeaturedToCart}>
                   <CartIcon />
                   Add to cart
@@ -68,7 +98,10 @@ export default function Featured({ product }) {
             </div>
           </Column>
           <Column>
-            <img src="https://nhom4-next-ecommerce.s3.amazonaws.com/1731252959604.png" alt="Product Image" />
+            <img
+              src="https://nhom4-next-ecommerce.s3.amazonaws.com/1731252959604.png"
+              alt="Product Image"
+            />
           </Column>
         </ColumnsWrapper>
       </Center>

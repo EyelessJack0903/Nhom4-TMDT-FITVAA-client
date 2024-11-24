@@ -1,8 +1,9 @@
 import Link from "next/link";
 import styled from "styled-components";
-import Center from "./Center";
-import { useContext, useEffect, useState } from "react";
-import { CartContext } from "./CartContext";
+import Center from "@/components/Center";
+import { useContext, useState, useEffect } from "react";
+import { CartContext } from "@/components/CartContext";
+import BarsIcon from "@/components/icons/Bars";
 
 const StyledHeader = styled.header`
   background-color: #222;
@@ -11,6 +12,8 @@ const StyledHeader = styled.header`
 const Logo = styled(Link)`
   color: #fff;
   text-decoration: none;
+  position: relative;
+  z-index: 3;
 `;
 
 const Wrapper = styled.div`
@@ -21,14 +24,51 @@ const Wrapper = styled.div`
 `;
 
 const StyledNav = styled.nav`
-  display: flex;
+  ${props => (props.mobileNavActive ? `
+    display: block;
+  ` : `
+    display: none;
+  `)}
   gap: 15px;
-  align-items: center;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 70px 20px 20px;
+  background-color: #222;
+
+  @media screen and (min-width: 768px) {
+    display: flex;
+    position: static;
+    padding: 0;
+  }
 `;
 
 const NavLink = styled(Link)`
+  display: block;
   color: #aaa;
   text-decoration: none;
+  padding: 10px 0;
+
+  @media screen and (min-width: 768px) {
+    padding: 0;
+  }
+`;
+
+const NavButton = styled.button`
+  background-color: transparent;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  color: white;
+  cursor: pointer;
+  position: relative;
+  z-index: 3;
+
+  @media screen and (min-width: 768px) {
+    display: none;
+  }
 `;
 
 const AuthButton = styled.div`
@@ -77,6 +117,7 @@ const DropdownMenu = styled.ul`
 
 export default function Header() {
   const { cartProducts } = useContext(CartContext);
+  const [mobileNavActive, setMobileNavActive] = useState(false);
   const [userName, setUserName] = useState(null);
 
   useEffect(() => {
@@ -96,12 +137,12 @@ export default function Header() {
     <StyledHeader>
       <Center>
         <Wrapper>
-          <Logo href={"/"}>Nhóm 4</Logo>
-          <StyledNav>
-            <NavLink href={"/"}>Home</NavLink>
-            <NavLink href={"/products"}>All products</NavLink>
-            <NavLink href={"/categories"}>Categories</NavLink>
-            <NavLink href={"/cart"}>Cart ({cartProducts?.length})</NavLink>
+          <Logo href="/">Ecommerce</Logo>
+          <StyledNav mobileNavActive={mobileNavActive}>
+            <NavLink href="/">Home</NavLink>
+            <NavLink href="/products">All products</NavLink>
+            <NavLink href="/categories">Categories</NavLink>
+            <NavLink href="/cart">Cart ({cartProducts?.length})</NavLink>
             {userName ? (
               <AuthButton>
                 Hello, {userName}
@@ -116,6 +157,9 @@ export default function Header() {
               </AuthButton>
             )}
           </StyledNav>
+          <NavButton onClick={() => setMobileNavActive((prev) => !prev)}>
+            <BarsIcon />
+          </NavButton>
         </Wrapper>
       </Center>
     </StyledHeader>

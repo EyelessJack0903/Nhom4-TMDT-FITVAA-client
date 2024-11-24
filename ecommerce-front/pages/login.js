@@ -6,9 +6,9 @@ const LoginWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh; /* Đảm bảo chiều cao ít nhất là bằng 100% chiều cao viewport */
+  min-height: 100vh;
   background-color: #f5f5f5;
-  padding: 0 20px; /* Thêm padding để tránh sát viền màn hình khi nhìn trên điện thoại */
+  padding: 0 20px;
 `;
 
 const LoginBox = styled.div`
@@ -17,15 +17,14 @@ const LoginBox = styled.div`
   padding: 30px;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  
-  /* Điều chỉnh kích thước cho điện thoại */
+
   @media (max-width: 768px) {
-    width: 90%; /* Chiều rộng 90% so với màn hình */
+    width: 90%;
     padding: 20px;
   }
 
   @media (max-width: 480px) {
-    width: 95%; /* Điều chỉnh thêm cho màn hình nhỏ hơn (điện thoại) */
+    width: 95%;
     padding: 15px;
   }
 `;
@@ -37,19 +36,25 @@ const Title = styled.h2`
   font-weight: bold;
 
   @media (max-width: 480px) {
-    font-size: 20px; /* Giảm kích thước font trên màn hình nhỏ */
+    font-size: 20px;
   }
 `;
 
-const Input = styled.input`
+const InputWrapper = styled.div`
   width: 100%;
-  padding: 10px;
   margin-bottom: 15px;
+`;
+
+const Input = styled.input`
+  width: calc(100% - 20px); /* Đảm bảo rằng input nằm gọn trong hộp LoginBox */
+  padding: 10px;
   border: 1px solid #ddd;
   border-radius: 5px;
+  margin: 0 auto;
+  display: block;
 
   @media (max-width: 480px) {
-    padding: 8px; /* Điều chỉnh padding cho điện thoại */
+    padding: 8px;
   }
 `;
 
@@ -68,8 +73,8 @@ const Button = styled.button`
   }
 
   @media (max-width: 480px) {
-    padding: 8px; /* Điều chỉnh kích thước cho màn hình nhỏ */
-    font-size: 14px; /* Giảm kích thước chữ trên màn hình nhỏ */
+    padding: 8px;
+    font-size: 14px;
   }
 `;
 
@@ -86,7 +91,7 @@ const Link = styled.a`
   }
 
   @media (max-width: 480px) {
-    font-size: 14px; /* Điều chỉnh kích thước chữ cho điện thoại */
+    font-size: 14px;
   }
 `;
 
@@ -126,20 +131,24 @@ export default function LoginPage() {
                 <LoginBox>
                     <Title>Login</Title>
                     <form onSubmit={handleLogin}>
-                        <Input
-                            type="email"
-                            placeholder="Email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                        />
-                        <Input
-                            type="password"
-                            placeholder="Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
+                        <InputWrapper>
+                            <Input
+                                type="email"
+                                placeholder="Email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                            />
+                        </InputWrapper>
+                        <InputWrapper>
+                            <Input
+                                type="password"
+                                placeholder="Password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                            />
+                        </InputWrapper>
                         <Button type="submit">Login</Button>
                     </form>
                     <Link href="/register">Don't have an account? Register here</Link>

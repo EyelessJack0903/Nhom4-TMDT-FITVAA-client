@@ -41,7 +41,7 @@ const Title = styled.h2`
 `;
 
 const Input = styled.input`
-  width: 100%;
+  width: calc(100% - 20px);
   padding: 10px;
   margin-bottom: 15px;
   border: 1px solid #ddd;

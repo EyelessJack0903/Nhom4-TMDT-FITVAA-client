@@ -70,7 +70,13 @@ export default function Featured({ product }) {
   const { addProduct } = useContext(CartContext);
 
   function addFeaturedToCart() {
-    addProduct(product._id);
+    if (product?._id) {
+      addProduct(product._id);
+    }
+  }
+
+  if (!product) {
+    return null; // Không hiển thị gì nếu product không tồn tại
   }
 
   return (
@@ -99,8 +105,8 @@ export default function Featured({ product }) {
           </Column>
           <Column>
             <img
-              src="https://nhom4-next-ecommerce.s3.amazonaws.com/1731252959604.png"
-              alt="Product Image"
+              src={product?.images?.[0] || "https://via.placeholder.com/150"}
+              alt={product?.title || "Product Image"}
             />
           </Column>
         </ColumnsWrapper>

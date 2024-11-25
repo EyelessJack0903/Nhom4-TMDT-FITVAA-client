@@ -137,11 +137,11 @@ export default function Header() {
     <StyledHeader>
       <Center>
         <Wrapper>
-          <Logo href="/">Ecommerce</Logo>
+          <Logo href="/">Nhóm 4</Logo>
           <StyledNav mobileNavActive={mobileNavActive}>
             <NavLink href="/">Home</NavLink>
             <NavLink href="/products">All products</NavLink>
-            <NavLink href="/categories">Categories</NavLink>
+            <NavLink href="/brand">Brand</NavLink>
             <NavLink href="/cart">Cart ({cartProducts?.length})</NavLink>
             {userName ? (
               <AuthButton>

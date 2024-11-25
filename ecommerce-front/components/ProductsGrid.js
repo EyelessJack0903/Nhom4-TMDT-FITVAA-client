@@ -3,17 +3,19 @@ import ProductBox from "@/components/ProductBox";
 
 const StyledProductsGrid = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  gap: 20px;
-
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px; /* Khoảng cách giữa các sản phẩm */
+  margin: 0; /* Loại bỏ khoảng cách bên ngoài */
+  padding: 0; /* Loại bỏ khoảng cách bên trong */
 `;
 
-export default  function ProductsGrid({products}) {
-    return (
-        <StyledProductsGrid>
-            {products.length > 0 && products.map(product => (
-                    <ProductBox key={product._id} {...product}/>
-                ))}
-        </StyledProductsGrid>
-    );
+
+export default function ProductsGrid({ products }) {
+  return (
+    <StyledProductsGrid>
+      {products.map((product) => (
+        <ProductBox key={product._id} {...product} />
+      ))}
+    </StyledProductsGrid>
+  );
 }

@@ -129,7 +129,7 @@ export default function LoginPage() {
         <LoginWrapper>
             <Center>
                 <LoginBox>
-                    <Title>Login</Title>
+                    <Title>Đăng nhập</Title>
                     <form onSubmit={handleLogin}>
                         <InputWrapper>
                             <Input
@@ -151,8 +151,8 @@ export default function LoginPage() {
                         </InputWrapper>
                         <Button type="submit">Login</Button>
                     </form>
-                    <Link href="/register">Don't have an account? Register here</Link>
-                    <Link href="/forgot-password">Forgot Password?</Link>
+                    <Link href="/register">Bạn không có tài khoản? Ấn đăng ký tại đây</Link>
+                    <Link href="/forgot-password">Quên mật khẩu?</Link>
                 </LoginBox>
             </Center>
         </LoginWrapper>

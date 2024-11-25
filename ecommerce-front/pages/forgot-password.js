@@ -77,16 +77,16 @@ export default function ForgotPasswordPage() {
     <Wrapper>
       <Center>
         <FormBox>
-          <Title>Forgot Password</Title>
+          <Title>Quên mật khẩu</Title>
           <form onSubmit={handleForgotPassword}>
             <Input
               type="email"
-              placeholder="Enter your email"
+              placeholder="Nhập email của bạn"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
-            <Button type="submit">Send Reset Code</Button>
+            <Button type="submit">Gửi mã reset password</Button>
           </form>
         </FormBox>
       </Center>

@@ -85,14 +85,14 @@ export default function ResetPasswordPage() {
           <form onSubmit={handleResetPassword}>
             <Input
               type="text"
-              placeholder="Reset Code"
+              placeholder="Nhập mã reset password"
               value={resetCode}
               onChange={(e) => setResetCode(e.target.value)}
               required
             />
             <Input
               type="password"
-              placeholder="New Password"
+              placeholder="Nhập password mới"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               required

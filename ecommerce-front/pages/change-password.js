@@ -89,30 +89,30 @@ export default function ChangePasswordPage() {
     <Wrapper>
       <Center>
         <ChangePasswordBox>
-          <Title>Change Password</Title>
+          <Title>Thay đổi mật khẩu</Title>
           <form onSubmit={handleChangePassword}>
             <Input
               type="password"
-              placeholder="Current Password"
+              placeholder="Password hiện tại"
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
               required
             />
             <Input
               type="password"
-              placeholder="New Password"
+              placeholder="Password mới"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               required
             />
             <Input
               type="password"
-              placeholder="Confirm New Password"
+              placeholder="Nhập lại password mới"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
-            <Button type="submit">Update Password</Button>
+            <Button type="submit">Cập nhật</Button>
           </form>
         </ChangePasswordBox>
       </Center>

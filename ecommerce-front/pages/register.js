@@ -149,13 +149,13 @@ export default function RegisterPage() {
         <LoginWrapper>
             <Center>
                 <LoginBox>
-                    <Title>{step === 1 ? "Register" : "Verify Your Email"}</Title>
+                    <Title>{step === 1 ? "Đăng ký" : "Xác minh email của bạn"}</Title>
                     <form onSubmit={step === 1 ? handleRegister : handleVerify}>
                         {step === 1 ? (
                             <>
                                 <Input
                                     type="text"
-                                    placeholder="Name"
+                                    placeholder="Tên của bạn"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     required
@@ -175,22 +175,22 @@ export default function RegisterPage() {
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
                                 />
-                                <Button type="submit">Send Verification Code</Button>
+                                <Button type="submit">Gửi mã xác minh qua email</Button>
                             </>
                         ) : (
                             <>
                                 <Input
                                     type="text"
-                                    placeholder="Enter Verification Code"
+                                    placeholder="Nhập mã xác minh"
                                     value={verificationCode}
                                     onChange={(e) => setVerificationCode(e.target.value)}
                                     required
                                 />
-                                <Button type="submit">Verify and Register</Button>
+                                <Button type="submit">Xác minh và đăng ký tài khoản</Button>
                             </>
                         )}
                     </form>
-                    <Link href="/login">Already have an account? Login here</Link>
+                    <Link href="/login">Bạn đã có tài khoản? Ấn để đăng nhập</Link>
                 </LoginBox>
             </Center>
         </LoginWrapper>

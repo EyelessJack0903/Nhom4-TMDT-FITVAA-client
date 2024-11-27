@@ -4,9 +4,16 @@ import Center from "@/components/Center";
 import { useContext, useState, useEffect } from "react";
 import { CartContext } from "@/components/CartContext";
 import BarsIcon from "@/components/icons/Bars";
-
+import { useRouter } from "next/router";
+import Footer from "./Footer";
 const StyledHeader = styled.header`
   background-color: #222;
+`;
+
+const LogoSearchWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 20px;
 `;
 
 const Logo = styled(Link)`
@@ -14,6 +21,27 @@ const Logo = styled(Link)`
   text-decoration: none;
   position: relative;
   z-index: 3;
+  font-size: 20px;
+  font-weight: bold;
+`;
+
+const SearchBar = styled.input`
+  padding: 8px 12px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  width: 180px;
+  background-color: #333;
+  color: white;
+  outline: none;
+
+  &::placeholder {
+    color: #aaa;
+  }
+
+  &:focus {
+    border-color: #0070f3;
+  }
 `;
 
 const Wrapper = styled.div`
@@ -24,11 +52,14 @@ const Wrapper = styled.div`
 `;
 
 const StyledNav = styled.nav`
-  ${props => (props.mobileNavActive ? `
+  ${(props) =>
+    props.mobileNavActive
+      ? `
     display: block;
-  ` : `
+  `
+      : `
     display: none;
-  `)}
+  `}
   gap: 15px;
   position: fixed;
   top: 0;
@@ -119,7 +150,8 @@ export default function Header() {
   const { cartProducts } = useContext(CartContext);
   const [mobileNavActive, setMobileNavActive] = useState(false);
   const [userName, setUserName] = useState(null);
-
+  const [searchQuery, setSearchQuery] = useState("");
+  const router = useRouter();
   useEffect(() => {
     const storedName = localStorage.getItem("userName");
     if (storedName) {
@@ -130,14 +162,28 @@ export default function Header() {
   const handleLogout = () => {
     localStorage.removeItem("userName");
     localStorage.removeItem("userEmail");
-    window.location.href = "/login"; // Chuyển hướng về trang đăng nhập
+    window.location.href = "/login";
   };
 
+  const handleSearch = (e) => {
+    if (e.key === "Enter") {
+      router.push(`/search?query=${searchQuery}`);
+    }
+  };
   return (
     <StyledHeader>
       <Center>
         <Wrapper>
-          <Logo href="/">Nhóm 4</Logo>
+          <LogoSearchWrapper>
+            <Logo href="/">Nhóm 4</Logo>
+            <SearchBar
+              type="text"
+              placeholder="Tìm sản phẩm..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={handleSearch}
+            />
+          </LogoSearchWrapper>
           <StyledNav mobileNavActive={mobileNavActive}>
             <NavLink href="/">Home</NavLink>
             <NavLink href="/products">All products</NavLink>
@@ -147,12 +193,14 @@ export default function Header() {
               <AuthButton>
                 Hello, {userName}
                 <DropdownMenu>
-                  <li onClick={() => window.location.href = "/change-password"}>Change Password</li>
+                  <li onClick={() => (window.location.href = "/change-password")}>
+                    Change Password
+                  </li>
                   <li onClick={handleLogout}>Log Out</li>
                 </DropdownMenu>
               </AuthButton>
             ) : (
-              <AuthButton onClick={() => window.location.href = "/login"}>
+              <AuthButton onClick={() => (window.location.href = "/login")}>
                 Login/Register
               </AuthButton>
             )}

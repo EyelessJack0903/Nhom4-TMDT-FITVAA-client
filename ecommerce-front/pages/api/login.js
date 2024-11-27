@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import clientPromise from "../../lib/mongodb";
+import { ObjectId } from "mongodb";
 
 export default async function handler(req, res) {
   if (req.method === "POST") {
@@ -13,7 +14,7 @@ export default async function handler(req, res) {
       const client = await clientPromise;
       const db = client.db();
 
-      // Tìm người dùng trong bảng `clients`
+      // Find the user by email
       const user = await db.collection("clients").findOne({ email });
 
       if (!user) {
@@ -21,11 +22,10 @@ export default async function handler(req, res) {
       }
 
       if (!user.password) {
-        console.error(`Password not found for user: ${email}`);
         return res.status(500).json({ error: "Password not found. Please contact support." });
       }
 
-      // So sánh mật khẩu
+      // Compare the password with the stored hash
       const isPasswordValid = await bcrypt.compare(password, user.password);
 
       if (!isPasswordValid) {
@@ -33,10 +33,13 @@ export default async function handler(req, res) {
       }
 
       console.log(`User logged in: ${email}`);
+
+      // Return the user data (including userId as ObjectId)
       return res.status(200).json({
         message: "Login successful",
+        userId: user._id.toString(),  
         email: user.email,
-        name: user.name, // Trả về tên người dùng
+        name: user.name,
       });
     } catch (error) {
       console.error("Login error:", error);

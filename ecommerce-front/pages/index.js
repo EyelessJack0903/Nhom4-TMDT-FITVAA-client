@@ -6,6 +6,7 @@ import { Category } from "@/models/Category";
 import styled from "styled-components";
 import ProductsGrid from "@/components/ProductsGrid";
 import Link from "next/link";
+import Footer from "@/components/Footer";
 
 const CategoryWrapper = styled.div`
   margin: 40px 0;
@@ -52,10 +53,10 @@ export default function HomePage({
               <ProductsGrid products={category.products.slice(0, 5)} />
             </CategoryWrapper>
           ))}
+          <Footer/>
     </div>
   );
 }
-
 
 export async function getServerSideProps() {
   const featuredProductId = '671615be500375a8e26eefea';

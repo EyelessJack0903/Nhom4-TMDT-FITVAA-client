@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import Header from "@/components/Header";
 import Link from "next/link";
-
+import Footer from "@/components/Footer";
 const BrandWrapper = styled.div`
   padding: 20px;
   text-align: center;

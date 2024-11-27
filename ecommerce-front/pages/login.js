@@ -96,65 +96,66 @@ const Link = styled.a`
 `;
 
 export default function LoginPage() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
+  const handleLogin = async (e) => {
+    e.preventDefault();
+  
+    try {
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+  
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem("userName", data.name);  
+        localStorage.setItem("userEmail", data.email); 
+        localStorage.setItem("userId", data.userId); 
+        alert("Login successful!");
+        window.location.href = "/"; // Redirect to home page
+      } else {
+        const data = await res.json();
+        alert(data.error || "Login failed");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("An error occurred during login");
+    }
+  };
 
-        try {
-            const res = await fetch("/api/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, password }),
-            });
-
-            if (res.ok) {
-                const data = await res.json();
-                localStorage.setItem("userName", data.name); // Lưu tên người dùng
-                localStorage.setItem("userEmail", data.email); // Lưu email người dùng
-                alert("Login successful!");
-                window.location.href = "/";
-            } else {
-                const data = await res.json();
-                alert(data.error || "Login failed");
-            }
-        } catch (error) {
-            console.error("Login error:", error);
-            alert("An error occurred during login");
-        }
-    };
-
-    return (
-        <LoginWrapper>
-            <Center>
-                <LoginBox>
-                    <Title>Đăng nhập</Title>
-                    <form onSubmit={handleLogin}>
-                        <InputWrapper>
-                            <Input
-                                type="email"
-                                placeholder="Email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                            />
-                        </InputWrapper>
-                        <InputWrapper>
-                            <Input
-                                type="password"
-                                placeholder="Password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                            />
-                        </InputWrapper>
-                        <Button type="submit">Login</Button>
-                    </form>
-                    <Link href="/register">Bạn không có tài khoản? Ấn đăng ký tại đây</Link>
-                    <Link href="/forgot-password">Quên mật khẩu?</Link>
-                </LoginBox>
-            </Center>
-        </LoginWrapper>
-    );
+  return (
+    <LoginWrapper>
+      <Center>
+        <LoginBox>
+          <Title>Đăng nhập</Title>
+          <form onSubmit={handleLogin}>
+            <InputWrapper>
+              <Input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </InputWrapper>
+            <InputWrapper>
+              <Input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </InputWrapper>
+            <Button type="submit">Login</Button>
+          </form>
+          <Link href="/register">Bạn không có tài khoản? Ấn đăng ký tại đây</Link>
+          <Link href="/forgot-password">Quên mật khẩu?</Link>
+        </LoginBox>
+      </Center>
+    </LoginWrapper>
+  );
 }

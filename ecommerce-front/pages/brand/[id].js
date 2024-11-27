@@ -17,12 +17,19 @@ const HeaderWrapper = styled.div`
   margin-bottom: 20px;
 `;
 
+const SortWrapper = styled.div`
+  display: flex;
+  gap: 15px;
+  align-items: center;
+`;
+
 const BrandTitle = styled.h1`
   text-align: center;
   margin-bottom: 40px;
   font-size: 2.5rem;
   color: #333;
   font-weight: bold;
+  flex: 1;
 `;
 
 const SortDropdown = styled.select`
@@ -62,10 +69,12 @@ const StyledProductsGrid = styled(ProductsGrid)`
 
 export default function BrandPage() {
   const router = useRouter();
-  const { id } = router.query; // Lấy brandId từ URL
+  const { id } = router.query;
   const [products, setProducts] = useState([]);
   const [brandName, setBrandName] = useState("");
   const [sortedProducts, setSortedProducts] = useState([]);
+  const [subBrands, setSubBrands] = useState([]);
+  const [selectedSubBrand, setSelectedSubBrand] = useState("");
 
   useEffect(() => {
     if (!id) return;
@@ -73,9 +82,25 @@ export default function BrandPage() {
     const fetchBrandData = async () => {
       const res = await fetch(`/api/products-by-brand?brandId=${id}`);
       const data = await res.json();
-      setBrandName(data.brandName); // Cập nhật tên thương hiệu từ API
-      setProducts(data.products); // Cập nhật danh sách sản phẩm từ API
-      setSortedProducts(data.products); // Gán sản phẩm ban đầu vào sortedProducts
+
+      // Set the brand name
+      setBrandName(data.brandName);
+
+      // Map through products to ensure subBrand IDs are correctly handled
+      const fetchedProducts = data.products;
+
+      // Map through subBrands and fetch names if possible, otherwise keep the _id
+      const updatedSubBrands = data.subBrands.map((subBrand) => {
+        // Try to fetch the name from the subBrand object
+        return {
+          _id: subBrand._id,
+          name: subBrand.name || subBrand._id.toString(), // fallback to _id if name is not found
+        };
+      });
+
+      setProducts(fetchedProducts);
+      setSortedProducts(fetchedProducts);
+      setSubBrands(updatedSubBrands); // Use the processed subBrands
     };
 
     fetchBrandData();
@@ -84,20 +109,30 @@ export default function BrandPage() {
   const handleSortChange = (e) => {
     const value = e.target.value;
 
-    if (value === "low-to-high") {
-      const sorted = [...products].sort((a, b) => a.price - b.price);
-      setSortedProducts(sorted);
-    } else if (value === "high-to-low") {
-      const sorted = [...products].sort((a, b) => b.price - a.price);
-      setSortedProducts(sorted);
-    } else if (value === "a-to-z") {
-      const sorted = [...products].sort((a, b) => a.title.localeCompare(b.title));
-      setSortedProducts(sorted);
-    } else if (value === "z-to-a") {
-      const sorted = [...products].sort((a, b) => b.title.localeCompare(a.title));
-      setSortedProducts(sorted);
+    let sorted = [...sortedProducts];
+
+    if (value === "price-low-to-high") {
+      sorted.sort((a, b) => a.price - b.price);
+    } else if (value === "price-high-to-low") {
+      sorted.sort((a, b) => b.price - a.price);
+    } else if (value === "name-a-to-z") {
+      sorted.sort((a, b) => a.title.localeCompare(b.title));
+    } else if (value === "name-z-to-a") {
+      sorted.sort((a, b) => b.title.localeCompare(a.title));
+    }
+
+    setSortedProducts(sorted);
+  };
+
+  const handleSubBrandChange = (e) => {
+    const subBrand = e.target.value;
+    setSelectedSubBrand(subBrand);
+
+    if (subBrand === "") {
+      setSortedProducts(products);
     } else {
-      setSortedProducts(products); // Reset lại sản phẩm nếu không chọn gì
+      const filtered = products.filter((product) => product.subBrand.toString() === subBrand);
+      setSortedProducts(filtered);
     }
   };
 
@@ -107,18 +142,28 @@ export default function BrandPage() {
       <BrandWrapper>
         <HeaderWrapper>
           <BrandTitle>{brandName}</BrandTitle>
-          <SortDropdown onChange={handleSortChange}>
-            <option value="">Sort by</option>
-            <option value="low-to-high">Price: Low to High</option>
-            <option value="high-to-low">Price: High to Low</option>
-            <option value="a-to-z">Name: A to Z</option>
-            <option value="z-to-a">Name: Z to A</option>
-          </SortDropdown>
+          <SortWrapper>
+            <SortDropdown onChange={handleSubBrandChange} value={selectedSubBrand}>
+              <option value="">All</option>
+              {subBrands.map((subBrand) => (
+                <option key={subBrand._id} value={subBrand.name && subBrand._id}>
+                  {subBrand.name || subBrand._id.toString()} 
+                </option>
+              ))}
+            </SortDropdown>
+            <SortDropdown onChange={handleSortChange}>
+              <option value="">Sort by</option>
+              <option value="price-low-to-high">Price: Low to High</option>
+              <option value="price-high-to-low">Price: High to Low</option>
+              <option value="name-a-to-z">Name: A to Z</option>
+              <option value="name-z-to-a">Name: Z to A</option>
+            </SortDropdown>
+          </SortWrapper>
         </HeaderWrapper>
         {sortedProducts.length > 0 ? (
           <StyledProductsGrid products={sortedProducts} />
         ) : (
-          <NoProducts>Không có sản phẩm nào thuộc thương hiệu này.</NoProducts>
+          <NoProducts>No products found for this sub-brand.</NoProducts>
         )}
       </BrandWrapper>
     </>

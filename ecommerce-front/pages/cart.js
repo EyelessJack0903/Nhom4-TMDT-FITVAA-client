@@ -7,6 +7,7 @@ import { CartContext } from "@/components/CartContext";
 import axios from "axios";
 import Table from "@/components/Table";
 import Input from "@/components/Input";
+import Footer from "@/components/Footer";
 
 const ColumnsWrapper = styled.div`
   display: grid;
@@ -66,6 +67,7 @@ const CityHolder = styled.div`
   gap: 5px;
 `;
 
+
 export default function CartPage() {
     const { cartProducts, addProduct, removeProduct, clearCart } =
       useContext(CartContext);
@@ -114,6 +116,13 @@ export default function CartPage() {
     }
   
     async function goToPayment() {
+      console.log("Thông tin thanh toán:", {
+        name,
+        email,
+        city,
+        streetAddress,
+        country,
+      });
       try {
         const response = await axios.post("/api/checkout", {
           name,
@@ -122,17 +131,17 @@ export default function CartPage() {
           postalCode,
           streetAddress,
           country,
-          cartProducts,
+          cartProducts, 
         });
-  
+    
         if (response.data.url) {
-          window.location = response.data.url; // Chỉ chuyển hướng đến trang thanh toán
+          window.location = response.data.url; // Điều hướng tới trang Stripe
         }
       } catch (error) {
-        console.error("Error during payment:", error);
+        console.error("Lỗi khi thanh toán:", error);
       }
-    }
-  
+    }       
+    
     let total = 0;
     for (const productId of cartProducts) {
       const price = products.find((p) => p._id === productId)?.price || 0;
@@ -146,8 +155,8 @@ export default function CartPage() {
           <Center>
             <ColumnsWrapper>
               <Box>
-                <h1>Thanks for your order!</h1>
-                <p>We will email you when your order has been processed.</p>
+                <h1>Cảm ơn bạn đã đặt hàng!!!</h1>
+                <p>Chúng tôi đã gửi một mail xác nhận đơn hàng của bạn, vui lòng kiểm tra</p>
               </Box>
             </ColumnsWrapper>
           </Center>

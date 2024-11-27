@@ -20,21 +20,27 @@ export default async function handler(req, res) {
     const client = await connectToDatabase();
     const db = client.db();
 
-    // Lấy thông tin của thương hiệu
+    // Get brand information by brandId
     const brand = await db.collection("brands").findOne({ _id: new ObjectId(brandId) });
     if (!brand) {
       res.status(404).json({ message: "Brand not found" });
       return;
     }
 
-    // Tìm sản phẩm liên kết với thương hiệu này
+    // Fetch products associated with the brand
     const products = await db
       .collection("products")
-      .find({ brand: new ObjectId(brandId) }) // Lọc theo brandId
+      .find({ brand: new ObjectId(brandId) })
       .toArray();
 
-    // Trả về thông tin brandName và danh sách sản phẩm
-    res.status(200).json({ brandName: brand.name, products });
+    // Fetch subBrands associated with this brand (assuming subBrands is an array field in the brand document)
+    const subBrands = brand.subBrands || [];
+
+    res.status(200).json({
+      brandName: brand.name,
+      products,
+      subBrands,
+    });
   } catch (error) {
     console.error("Error fetching products or brand:", error);
     res.status(500).json({ message: "Unable to fetch products or brand" });

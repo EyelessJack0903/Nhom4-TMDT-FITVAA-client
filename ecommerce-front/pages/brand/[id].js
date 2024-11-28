@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import styled from "styled-components";
 import Header from "@/components/Header";
 import ProductsGrid from "@/components/ProductsGrid";
+import Center from "@/components/Center";  // Import Center
 
 const BrandWrapper = styled.div`
   padding: 40px 20px;
@@ -58,6 +59,32 @@ const NoProducts = styled.p`
   margin-top: 20px;
 `;
 
+const PaginationWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+`;
+
+const PaginationButton = styled.button`
+  padding: 8px 16px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background: #f9f9f9;
+  margin: 0 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+
+  &:hover {
+    background: #e0e0e0;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    background: #ddd;
+  }
+`;
+
 const StyledProductsGrid = styled(ProductsGrid)`
   max-width: 1200px;
   margin: 0 auto;
@@ -75,6 +102,8 @@ export default function BrandPage() {
   const [sortedProducts, setSortedProducts] = useState([]);
   const [subBrands, setSubBrands] = useState([]);
   const [selectedSubBrand, setSelectedSubBrand] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     if (!id) return;
@@ -83,24 +112,29 @@ export default function BrandPage() {
       const res = await fetch(`/api/products-by-brand?brandId=${id}`);
       const data = await res.json();
 
-      // Set the brand name
       setBrandName(data.brandName);
 
-      // Map through products to ensure subBrand IDs are correctly handled
-      const fetchedProducts = data.products;
+      let fetchedProducts = data.products;
 
-      // Map through subBrands and fetch names if possible, otherwise keep the _id
+      // Lọc sản phẩm có stock > 0
+      fetchedProducts = fetchedProducts.filter(product => product.stock > 0);
+
       const updatedSubBrands = data.subBrands.map((subBrand) => {
-        // Try to fetch the name from the subBrand object
         return {
           _id: subBrand._id,
-          name: subBrand.name || subBrand._id.toString(), // fallback to _id if name is not found
+          name: subBrand.name || subBrand._id.toString(),
         };
       });
 
       setProducts(fetchedProducts);
       setSortedProducts(fetchedProducts);
-      setSubBrands(updatedSubBrands); // Use the processed subBrands
+      setSubBrands(updatedSubBrands);
+
+      // Cập nhật số trang
+      const totalProductCount = fetchedProducts.length;
+      const productsPerPage = 10;
+      const totalPageCount = Math.ceil(totalProductCount / productsPerPage);
+      setTotalPages(totalPageCount);
     };
 
     fetchBrandData();
@@ -136,35 +170,64 @@ export default function BrandPage() {
     }
   };
 
+  const handlePagination = (page) => {
+    setCurrentPage(page);
+
+    // Phân trang các sản phẩm
+    const startIndex = (page - 1) * 10;
+    const paginatedProducts = products.slice(startIndex, startIndex + 10);
+    setSortedProducts(paginatedProducts);
+  };
+
   return (
     <>
       <Header />
       <BrandWrapper>
-        <HeaderWrapper>
-          <BrandTitle>{brandName}</BrandTitle>
-          <SortWrapper>
-            <SortDropdown onChange={handleSubBrandChange} value={selectedSubBrand}>
-              <option value="">All</option>
-              {subBrands.map((subBrand) => (
-                <option key={subBrand._id} value={subBrand.name && subBrand._id}>
-                  {subBrand.name || subBrand._id.toString()} 
-                </option>
-              ))}
-            </SortDropdown>
-            <SortDropdown onChange={handleSortChange}>
-              <option value="">Sort by</option>
-              <option value="price-low-to-high">Price: Low to High</option>
-              <option value="price-high-to-low">Price: High to Low</option>
-              <option value="name-a-to-z">Name: A to Z</option>
-              <option value="name-z-to-a">Name: Z to A</option>
-            </SortDropdown>
-          </SortWrapper>
-        </HeaderWrapper>
-        {sortedProducts.length > 0 ? (
-          <StyledProductsGrid products={sortedProducts} />
-        ) : (
-          <NoProducts>No products found for this sub-brand.</NoProducts>
-        )}
+        <Center>
+          <HeaderWrapper>
+            <BrandTitle>{brandName}</BrandTitle>
+            <SortWrapper>
+              <SortDropdown onChange={handleSubBrandChange} value={selectedSubBrand}>
+                <option value="">All</option>
+                {subBrands.map((subBrand) => (
+                  <option key={subBrand._id} value={subBrand._id}>
+                    {subBrand.name || subBrand._id.toString()}
+                  </option>
+                ))}
+              </SortDropdown>
+              <SortDropdown onChange={handleSortChange}>
+                <option value="">Sort by</option>
+                <option value="price-low-to-high">Price: Low to High</option>
+                <option value="price-high-to-low">Price: High to Low</option>
+                <option value="name-a-to-z">Name: A to Z</option>
+                <option value="name-z-to-a">Name: Z to A</option>
+              </SortDropdown>
+            </SortWrapper>
+          </HeaderWrapper>
+
+          {sortedProducts.length > 0 ? (
+            <StyledProductsGrid products={sortedProducts} />
+          ) : (
+            <NoProducts>Không có sản phẩm thuộc thương hiệu này hoặc đang hết hàng.</NoProducts>
+          )}
+
+          {/* Pagination */}
+          <PaginationWrapper>
+            <PaginationButton
+              disabled={currentPage <= 1}
+              onClick={() => handlePagination(currentPage - 1)}
+            >
+              Previous
+            </PaginationButton>
+            <span>{currentPage} / {totalPages}</span>
+            <PaginationButton
+              disabled={currentPage >= totalPages}
+              onClick={() => handlePagination(currentPage + 1)}
+            >
+              Next
+            </PaginationButton>
+          </PaginationWrapper>
+        </Center>
       </BrandWrapper>
     </>
   );

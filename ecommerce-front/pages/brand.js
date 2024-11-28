@@ -82,7 +82,7 @@ export async function getServerSideProps() {
       return { props: { brands } };
     } catch (error) {
       console.error("Error fetching brands:", error.message);
-      return { props: { brands: [] } }; // Trả về mảng rỗng nếu lỗi
+      return { props: { brands: [] } }; 
     }
   }
   

@@ -8,29 +8,47 @@ import ProductsGrid from "@/components/ProductsGrid";
 import Link from "next/link";
 import Footer from "@/components/Footer";
 
+// Style for category wrapper with shadow and border
 const CategoryWrapper = styled.div`
   margin: 40px 0;
-  padding: 20px;
-  background: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* Light shadow for depth */
+  border: 1px solid #ecf0f1; /* Soft border around the box */
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  
+  &:hover {
+    transform: translateY(-5px); /* Slightly lift the box on hover */
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15); /* Stronger shadow on hover */
+  }
 `;
 
+// Category title style with better spacing and color
 const CategoryTitle = styled.h2`
-  font-size: 1.4rem;
-  color: #333;
-  font-weight: bold;
+  font-size: 1.6rem;
+  color: #2c3e50;
+  font-weight: 600;
   margin-bottom: 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-bottom: 3px solid #ecf0f1;
+  padding-bottom: 12px;
 `;
 
+// Show all link style with more contrast and hover effect
 const ShowAllLink = styled(Link)`
-  font-size: 1.2rem;
-  color: #333;
-  text-decoration: underline;
+  font-size: 1.1rem;
+  color: #3498db;
+  text-decoration: none;
+  font-weight: 500;
   cursor: pointer;
+
+  &:hover {
+    color: #2980b9;
+    text-decoration: underline;
+  }
 `;
 
 export default function HomePage({
@@ -50,10 +68,10 @@ export default function HomePage({
                 {category.name}
                 <ShowAllLink href={`/category/${category._id}`}>Show all</ShowAllLink>
               </CategoryTitle>
-              <ProductsGrid products={category.products.slice(0, 5)} />
+              <ProductsGrid products={category.products.slice(0, 7)} />
             </CategoryWrapper>
           ))}
-          <Footer/>
+      <Footer />
     </div>
   );
 }
@@ -65,19 +83,20 @@ export async function getServerSideProps() {
   let featuredProduct = null;
 
   try {
-    // Lấy sản phẩm nổi bật
     featuredProduct = await Product.findById(featuredProductId);
+    if (featuredProduct && featuredProduct.stock <= 0) {
+      featuredProduct = null; 
+    }
   } catch (error) {
     console.error("Error fetching featured product:", error);
   }
 
-  // Lấy các danh mục và sản phẩm liên kết
   let categoriesWithProducts = [];
   try {
     const categories = await Category.find();
     categoriesWithProducts = await Promise.all(
       categories.map(async (category) => {
-        const products = await Product.find({ category: category._id });
+        const products = await Product.find({ category: category._id, stock: { $gt: 0 } });
         return { ...category.toObject(), products };
       })
     );

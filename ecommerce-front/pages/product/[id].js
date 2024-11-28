@@ -63,7 +63,7 @@ const PriceRow = styled.div`
 const Price = styled.span`
   font-size: 1.6rem;
   font-weight: bold;
-  color: #d9534f;
+  color: green;
 `;
 
 const ButtonWrapper = styled.div`
@@ -79,7 +79,7 @@ const CommentSection = styled.div`
 `;
 
 const LeftSection = styled.div`
-  flex: 1;
+  flex: 1;  
   padding: 20px;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -219,6 +219,19 @@ const ProductImage = styled.img`
   margin-bottom: 10px;
 `;
 
+const SoldOutText = styled.span`
+  color: red;
+  font-size: 2rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  text-align: center;
+`;
+
 export default function ProductPage({ product, relatedProducts }) {
   const { addProduct } = useContext(CartContext);
   const [reviews, setReviews] = useState([]);
@@ -278,7 +291,10 @@ export default function ProductPage({ product, relatedProducts }) {
     router.push("/login");
   };
 
-  const subBrandName = product.brand?.subBrands.find(subBrand => subBrand._id.toString() === product.subBrand.toString())?.name || product.subBrand;
+  const subBrandName = product.brand?.subBrands?.find(subBrand => {
+    return subBrand._id.toString() === product.subBrand || subBrand.name === product.subBrand;
+  })?.name || (product.subBrand || 'Unknown SubBrand');
+
   const categoryName = product.category ? product.category.name : "Unknown Category";
 
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -306,6 +322,21 @@ export default function ProductPage({ product, relatedProducts }) {
           <div>
             <ProductTitle>{product.title}</ProductTitle>
             <ProductDescription>{product.description}</ProductDescription>
+
+            {product.stock > 0 && (
+              <div>
+                <strong>Số lượng trong kho: </strong>
+                <span
+                  style={{
+                    color: product.stock < 4 ? 'red' : 'blue',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  {product.stock}
+                </span>
+              </div>
+            )}
+
             <hr />
             {/* Display Brand and SubBrand Info */}
             <BrandAndSubBrandWrapper>
@@ -316,12 +347,18 @@ export default function ProductPage({ product, relatedProducts }) {
             <hr />
             <PriceRow>
               <div>
-                <Price>${product.price}</Price>
+                <Price>{`$${product.price}`}</Price>
               </div>
               <ButtonWrapper>
-                <Button primary onClick={() => addProduct(product._id)}>
-                  <CartIcon /> Add to cart
-                </Button>
+                {product.stock > 0 ? (
+                  <Button primary onClick={() => addProduct(product._id)}>
+                    <CartIcon /> Add to cart
+                  </Button>
+                ) : (
+                  <SoldOutText>
+                    Sold Out
+                  </SoldOutText>
+                )}
               </ButtonWrapper>
             </PriceRow>
           </div>
@@ -377,22 +414,24 @@ export default function ProductPage({ product, relatedProducts }) {
           <ArrowButton onClick={handlePrev}>{"<"}</ArrowButton>
           <div style={{ display: "flex", overflowX: "auto", maxWidth: "80%" }}>
             {Array.isArray(relatedProducts) &&
-              relatedProducts.slice(currentSlide, currentSlide + 5).map((relatedProduct) => (
-                <ProductCard key={relatedProduct._id}>
-                  <a href={`/product/${relatedProduct._id}`}>
-                    <ProductImage
-                      src={relatedProduct.images[0]}
-                      alt={relatedProduct.title}
-                    />
-                  </a>
-                  <h4>{relatedProduct.title}</h4>
-                  <Price>${relatedProduct.price}</Price>
-                </ProductCard>
-              ))}
+              relatedProducts
+                .filter((product) => product.stock > 0) // Chỉ lấy các sản phẩm còn hàng
+                .slice(currentSlide, currentSlide + 5)
+                .map((relatedProduct) => (
+                  <ProductCard key={relatedProduct._id}>
+                    <a href={`/product/${relatedProduct._id}`}>
+                      <ProductImage
+                        src={relatedProduct.images[0]}
+                        alt={relatedProduct.title}
+                      />
+                    </a>
+                    <h4>{relatedProduct.title}</h4>
+                    <Price>${relatedProduct.price}</Price>
+                  </ProductCard>
+                ))}
           </div>
           <ArrowButton onClick={handleNext}>{">"}</ArrowButton>
         </ProductSliderWrapper>
-
 
         {/* Comment Section */}
         <CommentSection>
@@ -429,12 +468,12 @@ export async function getServerSideProps(context) {
 
   const product = await Product.findById(id)
     .populate("brand")
-    .populate("subBrand")
     .populate("category");
 
   const relatedProducts = await Product.find({ category: product.category._id })
     .limit(8)
     .exec();
+
   return {
     props: {
       product: JSON.parse(JSON.stringify(product)),
@@ -442,5 +481,6 @@ export async function getServerSideProps(context) {
     },
   };
 }
+
 
 

@@ -69,124 +69,135 @@ const CityHolder = styled.div`
 
 
 export default function CartPage() {
-    const { cartProducts, addProduct, removeProduct, clearCart } =
-      useContext(CartContext);
-    const [products, setProducts] = useState([]);
-    const [name, setName] = useState("");
-    const [email, setEmail] = useState("");
-    const [city, setCity] = useState("");
-    const [postalCode, setPostalCode] = useState("");
-    const [streetAddress, setStreetAddress] = useState("");
-    const [country, setCountry] = useState("");
-    const [isSuccess, setIsSuccess] = useState(false);
+  const { cartProducts, addProduct, removeProduct, clearCart } =
+    useContext(CartContext);
+  const [products, setProducts] = useState([]);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [city, setCity] = useState("");
+  const [postalCode, setPostalCode] = useState("");
+  const [streetAddress, setStreetAddress] = useState("");
+  const [country, setCountry] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  function clearCartHandler() {
+    clearCart(); // Xóa giỏ hàng từ context
+    setProducts([]); // Xóa danh sách sản phẩm trong state
+    console.log("Cart cleared after success");
+  }
   
-    function clearCartHandler() {
-      clearCart(); // Xóa giỏ hàng từ context
-      setProducts([]); // Xóa danh sách sản phẩm trong state
-      console.log("Cart cleared after success");
+  useEffect(() => {
+    if (cartProducts.length > 0) {
+      axios.post("/api/cart", { ids: cartProducts }).then((response) => {
+        setProducts(response.data); // Cập nhật sản phẩm khi giỏ hàng thay đổi
+      });
+    } else {
+      setProducts([]);
     }
-  
-    useEffect(() => {
-      if (cartProducts.length > 0) {
-        axios.post("/api/cart", { ids: cartProducts }).then((response) => {
-          setProducts(response.data);
-        });
-      } else {
-        setProducts([]);
-      }
-    }, [cartProducts]);
-  
-    useEffect(() => {
-      if (typeof window === "undefined") {
-        return;
-      }
-      if (window?.location.href.includes("success")) {
-        console.log("Success page detected, clearing cart...");
-        setIsSuccess(true); // Đặt trạng thái thành công
-        clearCartHandler(); // Xóa giỏ hàng
-      }
-    }, []);
-  
-    function moreOfThisProduct(id) {
-      addProduct(id);
+  }, [cartProducts]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
     }
-  
-    function lessOfThisProduct(id) {
-      removeProduct(id);
+    if (window?.location.href.includes("success")) {
+      console.log("Success page detected, clearing cart...");
+      setIsSuccess(true); // Đặt trạng thái thành công
+      clearCartHandler(); // Xóa giỏ hàng
     }
-  
-    async function goToPayment() {
-      console.log("Thông tin thanh toán:", {
+  }, []);
+
+  function moreOfThisProduct(id) {
+    addProduct(id); // Thêm sản phẩm vào giỏ hàng
+  }
+
+  function lessOfThisProduct(id) {
+    removeProduct(id); // Xóa sản phẩm khỏi giỏ hàng
+  }
+
+  async function goToPayment() {
+    console.log("Thông tin thanh toán:", {
+      name,
+      email,
+      city,
+      streetAddress,
+      country,
+    });
+    try {
+      const response = await axios.post("/api/checkout", {
         name,
         email,
         city,
+        postalCode,
         streetAddress,
         country,
+        cartProducts,
       });
-      try {
-        const response = await axios.post("/api/checkout", {
-          name,
-          email,
-          city,
-          postalCode,
-          streetAddress,
-          country,
-          cartProducts, 
-        });
-    
-        if (response.data.url) {
-          window.location = response.data.url; // Điều hướng tới trang Stripe
-        }
-      } catch (error) {
-        console.error("Lỗi khi thanh toán:", error);
+
+      if (response.data.url) {
+        window.location = response.data.url; // Điều hướng tới trang Stripe
       }
-    }       
-    
-    let total = 0;
-    for (const productId of cartProducts) {
-      const price = products.find((p) => p._id === productId)?.price || 0;
+    } catch (error) {
+      console.error("Lỗi khi thanh toán:", error);
+    }
+  }
+
+  // Tính tổng giá trị của giỏ hàng
+  let total = 0;
+  for (const productId of cartProducts) {
+    const product = products.find((p) => p._id === productId); // Lấy thông tin sản phẩm
+    if (product) {
+      const price = product.price || 0;
       total += price;
     }
-  
-    if (isSuccess) {
-      return (
-        <>
-          <Header />
-          <Center>
-            <ColumnsWrapper>
-              <Box>
-                <h1>Cảm ơn bạn đã đặt hàng!!!</h1>
-                <p>Chúng tôi đã gửi một mail xác nhận đơn hàng của bạn, vui lòng kiểm tra</p>
-              </Box>
-            </ColumnsWrapper>
-          </Center>
-        </>
-      );
-    }
-  
+  }
+
+  if (isSuccess) {
     return (
       <>
         <Header />
         <Center>
           <ColumnsWrapper>
             <Box>
-              <h2>Cart</h2>
-              {!cartProducts?.length && <div>Your cart is empty</div>}
-              {products?.length > 0 && (
-                <Table>
-                  <thead>
-                    <tr>
-                      <th>Product</th>
-                      <th>Quantity</th>
-                      <th>Price</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {products.map((product) => (
+              <h1>Cảm ơn bạn đã đặt hàng!!!</h1>
+              <p>Chúng tôi đã gửi một mail xác nhận đơn hàng của bạn, vui lòng kiểm tra</p>
+            </Box>
+          </ColumnsWrapper>
+        </Center>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Header />
+      <Center>
+        <ColumnsWrapper>
+          <Box>
+            <h2>Cart</h2>
+            {!cartProducts?.length && <div>Your cart is empty</div>}
+            {products?.length > 0 && (
+              <Table>
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {products.map((product) => {
+                    const cartQuantity = cartProducts.filter(
+                      (id) => id === product._id
+                    ).length; // Tính số lượng sản phẩm trong giỏ hàng
+                    const productStock = product.stock; // Lấy số lượng tồn kho của sản phẩm
+                    const canAddMore = cartQuantity < productStock; // Kiểm tra xem có thể thêm sản phẩm vào giỏ không
+
+                    return (
                       <tr key={product._id}>
                         <ProductInfoCell>
                           <ProductImageBox>
-                            <img src={product.images[0]} alt="" />
+                            <img src={product.images[0]} alt={product.title} />
                           </ProductImageBox>
                           {product.title}
                         </ProductInfoCell>
@@ -195,86 +206,88 @@ export default function CartPage() {
                             -
                           </Button>
                           <QuantityLabel>
-                            {
-                              cartProducts.filter((id) => id === product._id)
-                                .length
-                            }
+                            {cartProducts.filter((id) => id === product._id)
+                              .length}
                           </QuantityLabel>
-                          <Button onClick={() => moreOfThisProduct(product._id)}>
+                          <Button
+                            onClick={() => canAddMore && moreOfThisProduct(product._id)}
+                            disabled={!canAddMore}
+                          >
                             +
                           </Button>
                         </td>
                         <td>
                           $
-                          {cartProducts.filter((id) => id === product._id)
-                            .length * product.price}
+                          {cartProducts.filter((id) => id === product._id).length *
+                            product.price}
                         </td>
                       </tr>
-                    ))}
-                    <tr>
-                      <td></td>
-                      <td></td>
-                      <td>${total}</td>
-                    </tr>
-                  </tbody>
-                </Table>
-              )}
-            </Box>
-            {!!cartProducts?.length && (
-              <Box>
-                <h2>Order information</h2>
-                <Input
-                  type="text"
-                  placeholder="Name"
-                  value={name}
-                  name="name"
-                  onChange={(ev) => setName(ev.target.value)}
-                />
-                <Input
-                  type="text"
-                  placeholder="Email"
-                  value={email}
-                  name="email"
-                  onChange={(ev) => setEmail(ev.target.value)}
-                />
-                <CityHolder>
-                  <Input
-                    type="text"
-                    placeholder="City"
-                    value={city}
-                    name="city"
-                    onChange={(ev) => setCity(ev.target.value)}
-                  />
-                  <Input
-                    type="text"
-                    placeholder="Postal Code"
-                    value={postalCode}
-                    name="postalCode"
-                    onChange={(ev) => setPostalCode(ev.target.value)}
-                  />
-                </CityHolder>
-                <Input
-                  type="text"
-                  placeholder="Street Address"
-                  value={streetAddress}
-                  name="streetAddress"
-                  onChange={(ev) => setStreetAddress(ev.target.value)}
-                />
-                <Input
-                  type="text"
-                  placeholder="Country"
-                  value={country}
-                  name="country"
-                  onChange={(ev) => setCountry(ev.target.value)}
-                />
-                <Button black block onClick={goToPayment}>
-                  Continue to payment
-                </Button>
-              </Box>
+                    );
+                  })}
+                  <tr>
+                    <td></td>
+                    <td></td>
+                    <td>${total}</td>
+                  </tr>
+                </tbody>
+              </Table>
             )}
-          </ColumnsWrapper>
-        </Center>
-      </>
-    );
-  }
-  
+          </Box>
+          {!!cartProducts?.length && (
+            <Box>
+              <h2>Order information</h2>
+              <Input
+                type="text"
+                placeholder="Name"
+                value={name}
+                name="name"
+                onChange={(ev) => setName(ev.target.value)}
+              />
+              <Input
+                type="text"
+                placeholder="Email"
+                value={email}
+                name="email"
+                onChange={(ev) => setEmail(ev.target.value)}
+              />
+              <CityHolder>
+                <Input
+                  type="text"
+                  placeholder="City"
+                  value={city}
+                  name="city"
+                  onChange={(ev) => setCity(ev.target.value)}
+                />
+                <Input
+                  type="text"
+                  placeholder="Postal Code"
+                  value={postalCode}
+                  name="postalCode"
+                  onChange={(ev) => setPostalCode(ev.target.value)}
+                />
+              </CityHolder>
+              <Input
+                type="text"
+                placeholder="Street Address"
+                value={streetAddress}
+                name="streetAddress"
+                onChange={(ev) => setStreetAddress(ev.target.value)}
+              />
+              <Input
+                type="text"
+                placeholder="Country"
+                value={country}
+                name="country"
+                onChange={(ev) => setCountry(ev.target.value)}
+              />
+              <Button black block onClick={goToPayment}>
+                Continue to payment
+              </Button>
+            </Box>
+          )}
+        </ColumnsWrapper>
+      </Center>
+    </>
+  );
+}
+

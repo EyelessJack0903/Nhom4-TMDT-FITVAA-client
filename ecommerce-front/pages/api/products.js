@@ -6,13 +6,17 @@ export default async function handler(req, res) {
 
   const { search } = req.query;
 
+  let query = { stock: { $gt: 0 } };
+
   if (search) {
-    const products = await Product.find({
-      title: { $regex: search, $options: "i" }, // Tìm kiếm không phân biệt hoa thường
-    });
+    query.title = { $regex: search, $options: "i" };
+  }
+
+  try {
+    const products = await Product.find(query);
     res.json(products);
-  } else {
-    const products = await Product.find();
-    res.json(products);
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({ error: "Server error" });
   }
 }

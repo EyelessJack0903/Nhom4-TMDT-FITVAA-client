@@ -1,4 +1,6 @@
 import mongoose, { model, Schema, models } from 'mongoose';
+import Brand from './Brand';
+import { Category } from './Category';
 
 const ProductSchema = new Schema(
     {
@@ -11,6 +13,7 @@ const ProductSchema = new Schema(
         detailedSpecs: { type: Object },
         brand: { type: mongoose.Schema.Types.ObjectId, ref: 'Brand' },
         subBrand: { type: mongoose.Schema.Types.ObjectId, ref: 'SubBrand' },
+        stock: { type: Number, required: true },
     },
     {
         timestamps: true,

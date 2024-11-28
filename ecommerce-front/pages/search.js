@@ -40,7 +40,7 @@ export default function SearchPage() {
         ) : products.length > 0 ? (
           <ProductsGrid products={products} />
         ) : (
-          <p>Không tìm thấy sản phẩm nào phù hợp.</p>
+          <p>Không tìm thấy sản phẩm hoặc sản phẩm đã hết hàng.</p>
         )}
       </Center>
     </>

@@ -39,6 +39,31 @@ const PaginationButton = styled.button`
   }
 `;
 
+const SortDropdown = styled.select`
+  padding: 8px 16px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background: #f9f9f9;
+  cursor: pointer;
+  margin: 20px 0;
+  transition: background 0.3s;
+
+  &:hover {
+    background: #e0e0e0;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #0070f3;
+  }
+`;
+
+const SortWrapper = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+`;
 export default function SearchPage() {
   const router = useRouter();
   const { query } = router.query;
@@ -46,11 +71,13 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [sortOrder, setSortOrder] = useState("");
 
   useEffect(() => {
     if (query) {
       setLoading(true);
-      fetch(`/api/products?search=${query}&page=${currentPage}`)
+      const fetchUrl = `/api/products?search=${query}&page=${currentPage}&sort=${sortOrder}`;
+      fetch(fetchUrl)
         .then((res) => res.json())
         .then((data) => {
           setProducts(data.products);
@@ -58,10 +85,15 @@ export default function SearchPage() {
           setLoading(false);
         });
     }
-  }, [query, currentPage]);
+  }, [query, currentPage, sortOrder]);
 
   const handlePagination = (page) => {
     setCurrentPage(page);
+  };
+
+  const handleSortChange = (e) => {
+    setSortOrder(e.target.value);
+    setCurrentPage(1); // Reset to first page when sorting changes
   };
 
   return (
@@ -69,6 +101,16 @@ export default function SearchPage() {
       <Header />
       <Center>
         <Title>Kết quả tìm kiếm cho: "{query}"</Title>
+        <SortWrapper>
+          <SortDropdown onChange={handleSortChange} value={sortOrder}>
+            <option value="">Sort by</option>
+            <option value="low-to-high">Price: Low to High</option>
+            <option value="high-to-low">Price: High to Low</option>
+            <option value="a-to-z">Name: A to Z</option>
+            <option value="z-to-a">Name: Z to A</option>
+          </SortDropdown>
+        </SortWrapper>
+
         {loading ? (
           <p>Đang tải...</p>
         ) : products.length > 0 ? (

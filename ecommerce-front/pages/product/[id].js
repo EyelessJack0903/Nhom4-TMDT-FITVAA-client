@@ -251,10 +251,12 @@ export default function ProductPage({ product, relatedProducts }) {
 
   const handleReviewSubmit = async (rating, comment) => {
     const userId = localStorage.getItem("userId");
+    const userName = localStorage.getItem("userName");
     const reviewData = {
       rating,
       comment,
       userId,
+      userName,
       productId: product._id,
     };
 
@@ -267,6 +269,7 @@ export default function ProductPage({ product, relatedProducts }) {
 
       if (res.ok) {
         alert("Review submitted successfully!");
+        router.reload();
       } else {
         const data = await res.json();
         alert(data.error || "Failed to submit review");
@@ -293,7 +296,7 @@ export default function ProductPage({ product, relatedProducts }) {
 
   const subBrandName = product.brand?.subBrands?.find(subBrand => {
     return subBrand._id.toString() === product.subBrand || subBrand.name === product.subBrand;
-  })?.name || (product.subBrand || 'Unknown SubBrand');
+  })?.name || (product.subBrand || 'Chưa có');
 
   const categoryName = product.category ? product.category.name : "Unknown Category";
 
@@ -323,19 +326,17 @@ export default function ProductPage({ product, relatedProducts }) {
             <ProductTitle>{product.title}</ProductTitle>
             <ProductDescription>{product.description}</ProductDescription>
 
-            {product.stock > 0 && (
-              <div>
-                <strong>Số lượng trong kho: </strong>
-                <span
-                  style={{
-                    color: product.stock < 4 ? 'red' : 'blue',
-                    fontWeight: 'bold',
-                  }}
-                >
-                  {product.stock}
-                </span>
-              </div>
-            )}
+            <div>
+              <strong>Tình trạng: </strong>
+              <span
+                style={{
+                  color: product.stock <= 3 && product.stock > 0 ? 'orange' : product.stock > 3 ? 'green' : 'red',
+                  fontWeight: 'bold',
+                }}
+              >
+                {product.stock > 3 ? 'Còn hàng' : product.stock <= 3 && product.stock > 0 ? 'Sắp hết hàng' : 'Hết hàng'}
+              </span>
+            </div>
 
             <hr />
             {/* Display Brand and SubBrand Info */}
@@ -426,6 +427,7 @@ export default function ProductPage({ product, relatedProducts }) {
                       />
                     </a>
                     <h4>{relatedProduct.title}</h4>
+                    <hr/>
                     <Price>${relatedProduct.price}</Price>
                   </ProductCard>
                 ))}

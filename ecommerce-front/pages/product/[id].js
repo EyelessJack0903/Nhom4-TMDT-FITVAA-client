@@ -416,8 +416,7 @@ export default function ProductPage({ product, relatedProducts }) {
           <div style={{ display: "flex", overflowX: "auto", maxWidth: "80%" }}>
             {Array.isArray(relatedProducts) &&
               relatedProducts
-                .filter((product) => product.stock > 0) // Chỉ lấy các sản phẩm còn hàng
-                .slice(currentSlide, currentSlide + 5)
+                .slice(currentSlide, currentSlide + 5) // Chỉ cắt phần danh sách
                 .map((relatedProduct) => (
                   <ProductCard key={relatedProduct._id}>
                     <a href={`/product/${relatedProduct._id}`}>
@@ -427,7 +426,7 @@ export default function ProductPage({ product, relatedProducts }) {
                       />
                     </a>
                     <h4>{relatedProduct.title}</h4>
-                    <hr/>
+                    <hr />
                     <Price>${relatedProduct.price}</Price>
                   </ProductCard>
                 ))}
@@ -472,9 +471,12 @@ export async function getServerSideProps(context) {
     .populate("brand")
     .populate("category");
 
-  const relatedProducts = await Product.find({ category: product.category._id })
+  let relatedProducts = await Product.find({ category: product.category._id })
     .limit(8)
     .exec();
+
+  // Xáo trộn danh sách sản phẩm ngẫu nhiên
+  relatedProducts = relatedProducts.sort(() => Math.random() - 0.5);
 
   return {
     props: {
@@ -483,6 +485,7 @@ export async function getServerSideProps(context) {
     },
   };
 }
+
 
 
 
